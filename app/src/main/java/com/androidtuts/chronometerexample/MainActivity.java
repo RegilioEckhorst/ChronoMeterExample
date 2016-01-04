@@ -1,6 +1,7 @@
 package com.androidtuts.chronometerexample;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -8,45 +9,49 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Chronometer;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private long timeWhenStopped = 0;
+    private boolean stopClicked;
+    private Chronometer chronometer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        chronometer = (Chronometer) findViewById(R.id.chronometer);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
+    }
+    // the method for when we press the 'reset' button
+    public void resetButtonClick(View v) {
+        chronometer.setBase(SystemClock.elapsedRealtime());
+        timeWhenStopped = 0;
+        TextView secondsText = (TextView) findViewById(R.id.hmsTekst);
+        secondsText.setText("0 seconds");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    // the method for when we press the 'start' button
+    public void startButtonClick(View v) {
+        chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
+        chronometer.start();
+        stopClicked = false;
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    // the method for when we press the 'stop' button
+    public void stopButtonClick(View v){
+        if (!stopClicked)  {
+            TextView secondsText = (TextView) findViewById(R.id.hmsTekst);
+            timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
+            int seconds = (int) timeWhenStopped / 1000;
+            secondsText.setText( Math.abs(seconds) + " seconds");
+            chronometer.stop();
+            stopClicked = true;
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
 }
